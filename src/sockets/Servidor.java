@@ -21,10 +21,12 @@ public class Servidor {
     public static void main(String[] args) {
 
         ServerSocket servidor = null;
-        Socket sc = null;
-        DataInputStream in;
-        DataOutputStream out;
-
+        Socket sc[] = new Socket[2];
+        DataInputStream[] in= new DataInputStream[2];
+        DataOutputStream[] out= new DataOutputStream[2];
+        Socket socketTurno= null;
+        
+        int[] puertosClientes = new int[2];
         //puerto de nuestro servidor
         final int PUERTO = 5000;
 
@@ -32,28 +34,47 @@ public class Servidor {
             //Creamos el socket del servidor
             servidor = new ServerSocket(PUERTO);
             System.out.println("Servidor iniciado");
-
+            
+            //guarda los sockets de los clientes 
+            for (int i = 0; i < puertosClientes.length; i++) {
+                sc[i]=servidor.accept();
+                in[i] = new DataInputStream(sc[i].getInputStream());
+                out[i] = new DataOutputStream(sc[i].getOutputStream());
+                System.out.println("Cliente conectado");
+            }
+            
             //Siempre estara escuchando peticiones
             while (true) {
 
-                //Espero a que un cliente se conecte
-                sc = servidor.accept();
+                socketTurno= servidor.accept();
+                DataInputStream inTurno= new DataInputStream(socketTurno.getInputStream());
+                DataOutputStream outTurno= new DataOutputStream(socketTurno.getOutputStream());
+                
+                if(sc[0].getPort()==socketTurno.getPort()){
+                    String mensaje = inTurno.readUTF();
 
-                System.out.println("Cliente conectado");
-                in = new DataInputStream(sc.getInputStream());
-                out = new DataOutputStream(sc.getOutputStream());
-
-                //Leo el mensaje que me envia
-                String mensaje = in.readUTF();
-
-                System.out.println(mensaje);
+                    
+                    System.out.println(mensaje);
 
                 //Le envio un mensaje
-                out.writeUTF("¡Hola mundo desde el servidor!");
+                    out[1].writeUTF("¡Hola mundo desde el servidor!");
 
                 //Cierro el socket
-                sc.close();
-                System.out.println("Cliente desconectado");
+                    sc[1].close();
+                    System.out.println("Cliente desconectado");
+                }else{
+                    String mensaje = inTurno.readUTF();
+
+                    System.out.println(mensaje);
+
+                //Le envio un mensaje
+                    out[0].writeUTF("¡Hola mundo desde el servidor!");
+
+                //Cierro el socket
+                    sc[0].close();
+                    System.out.println("Cliente desconectado");
+                }
+                
 
             }
 

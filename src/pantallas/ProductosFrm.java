@@ -20,7 +20,7 @@ import javax.swing.table.DefaultTableModel;
 import obj.Producto;
 import obj.ProductoInterpreter;
 import obj.Reporte;
-import sockets.Cliente;
+import sockets.HiloCliente;
 
 /**
  *
@@ -29,6 +29,12 @@ import sockets.Cliente;
 public class ProductosFrm extends javax.swing.JFrame {
 
     ArrayList<Producto> productos = new ArrayList<>();
+    final String HOST = "localhost";
+        //Puerto del servidor
+        final int PUERTO = 5000;
+        DataInputStream in;
+        DataOutputStream out;
+        Socket sc = null; 
 
     /**
      * Creates new form productosFrm
@@ -48,7 +54,15 @@ public class ProductosFrm extends javax.swing.JFrame {
         productos.add(producto5);
 
         this.llenarTablaSeleccionadas();
-
+        try { 
+            Socket sc = new Socket(HOST, PUERTO);
+            in = new DataInputStream(sc.getInputStream());
+            out = new DataOutputStream(sc.getOutputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        HiloCliente hilo = new HiloCliente(sc,in);
+        hilo.start();
     }
 
     private Producto getNombreZonaSeleccionado() {
@@ -264,32 +278,19 @@ public class ProductosFrm extends javax.swing.JFrame {
 //            Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
 //        }
 //Host del servidor
-        final String HOST = "localhost";
-        //Puerto del servidor
-        final int PUERTO = 5000;
-        DataInputStream in;
-        DataOutputStream out;
+        
 
         try {
             //Creo el socket para conectarme con el cliente
-            Socket sc = new Socket(HOST, PUERTO);
-
-            in = new DataInputStream(sc.getInputStream());
-            out = new DataOutputStream(sc.getOutputStream());
-            System.out.println(ProductoInterpreter.toString(producto));
+            sc = new Socket(HOST,PUERTO);
             //Envio un mensaje al cliente
             out.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
-            
-
+            out.flush();
             //Recibo el mensaje del servidor
-            String mensaje = in.readUTF();
-
-            System.out.println(mensaje);
-
             sc.close();
 
         } catch (IOException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
         
     }//GEN-LAST:event_jButton2ActionPerformed

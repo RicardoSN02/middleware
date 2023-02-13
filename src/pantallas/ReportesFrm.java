@@ -5,6 +5,7 @@
 package pantallas;
 
 import com.google.gson.Gson;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -17,10 +18,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import obj.Producto;
+import obj.ProductoInterpreter;
 import static obj.ProductoInterpreter.fromString;
 import obj.Reporte;
 import obj.ReporteInterpreter;
-import sockets.Cliente;
+import sockets.HiloCliente;
 
 /**
  *
@@ -29,13 +31,39 @@ import sockets.Cliente;
 public class ReportesFrm extends javax.swing.JFrame {
 
     ArrayList<Producto> productos = new ArrayList<>();
-
+        final String HOST = "localhost";
+        //Puerto del servidor
+        final int PUERTO = 5000;
+        DataInputStream in;
+        DataOutputStream out;
+        Socket sc = null; 
     /**
      * Creates new form reportesFrm
      */
     public ReportesFrm() {
         initComponents();
+        Producto producto1 = new Producto(1, "television smart", "22 pulgadas");
+        Producto producto2 = new Producto(2, "television smart", "30 pulgadas");
+        Producto producto3 = new Producto(3, "television smart", "34 pulgadas");
+        Producto producto4 = new Producto(4, "television smart", "40 pulgadas");
+        Producto producto5 = new Producto(5, "television smart", "50 pulgadas");
 
+        productos.add(producto1);
+        productos.add(producto2);
+        productos.add(producto3);
+        productos.add(producto4);
+        productos.add(producto5);
+        
+        this.llenarTablaSeleccionadas();
+        try { 
+            Socket sc = new Socket(HOST, PUERTO);
+            in = new DataInputStream(sc.getInputStream());
+            out = new DataOutputStream(sc.getOutputStream());
+        } catch (IOException ex) {
+            Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        HiloCliente hilo = new HiloCliente(sc,in);
+        hilo.start();
     }
 
     private Producto getNombreZonaSeleccionado() {
@@ -52,16 +80,17 @@ public class ReportesFrm extends javax.swing.JFrame {
         }
     }
 
-    private void llenarTablaSeleccionadas(String producto) {
+    private void llenarTablaSeleccionadas() {
 
         DefaultTableModel modeloTabla = (DefaultTableModel) this.tblProductos.getModel();
 
         modeloTabla.setRowCount(0);
-        Producto p = fromString(producto);
-        Object[] fila = new Object[2];
-        fila[0] = p.getNombre();
-        fila[1] = p.getDescripcion();
-        modeloTabla.addRow(fila);
+       productos.forEach(producto -> {
+            Object[] fila = new Object[2];
+            fila[0] = producto.getNombre();
+            fila[1] = producto.getDescripcion();
+            modeloTabla.addRow(fila);
+        });
     }
 
     /**
@@ -158,38 +187,18 @@ public class ReportesFrm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        //reporte de prueba
+        Producto producto1 = new Producto(1, "television smart", "22 pulgadas");
+        Reporte reporte = new Reporte("tele con defectos", producto1);
+        reporte.setIdReporte(1);
         try {
-            // TODO add your handling code here:
-
-//            Producto producto = new Producto(5, "tele", "50 pulgadas");
-//            Reporte reporte = new Reporte(txtComentario.getText(), producto);
-//
-//            Socket socket = new Socket("localhost", 9999);
-//
-//            DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
-//
-//            Gson gson = new Gson();
-//            String gsonObjeto = gson.toJson(reporte);
-//
-//            salida.writeUTF(gsonObjeto);
-            Socket socket = new Socket("localhost", 4444);
-            ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
-            String mensaje = (String) entrada.readObject();
-            llenarTablaSeleccionadas(mensaje);
-            //Enviar respuesta
-            ObjectOutputStream respuesta = new ObjectOutputStream(socket.getOutputStream());
-            if (getNombreZonaSeleccionado() != null) {
-                Producto producto = getNombreZonaSeleccionado();
-                Reporte reporte = new Reporte(txtComentario.getText(), producto);
-                System.out.println(ReporteInterpreter.toString(reporte));
-                respuesta.writeObject(ReporteInterpreter.toString(reporte)); //Envia el mensaje
-
-            }
-
+            sc = new Socket(HOST,PUERTO);
+            //Envio un mensaje al cliente
+            out.writeUTF(ReporteInterpreter.toString(reporte)); //Envia el mensaje
+            out.flush();
+            sc.close();
         } catch (IOException ex) {
-            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
-            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
+            
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -227,6 +236,7 @@ public class ReportesFrm extends javax.swing.JFrame {
                 new ReportesFrm().setVisible(true);
             }
         });
+        
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
