@@ -11,14 +11,14 @@ import pantallas.ReportesFrm;
  * @author Luis
  */
 public class MainClienteReportes {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        // TODO code application logic here
-        ReportesFrm r = new ReportesFrm();
-        r.setVisible(true);
-    }
-    
+//
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String[] args) {
+//        // TODO code application logic here
+//        ReportesFrm r = new ReportesFrm();
+//        r.setVisible(true);
+//    }
+//    
 }

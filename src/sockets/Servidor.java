@@ -4,53 +4,62 @@
  */
 package sockets;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author rjsaa
  */
-public class Servidor extends Conexion {
+public class Servidor {
 
-    public Servidor() throws IOException {
-        super("servidor");
-    } //Se usa el constructor para servidor de Conexion
+    public static void main(String[] args) {
 
-    public void startServer() {
+        ServerSocket servidor = null;
+        Socket sc = null;
+        DataInputStream in;
+        DataOutputStream out;
+
+        //puerto de nuestro servidor
+        final int PUERTO = 5000;
+
         try {
-            System.out.println("Esperando..."); //Esperando conexión
+            //Creamos el socket del servidor
+            servidor = new ServerSocket(PUERTO);
+            System.out.println("Servidor iniciado");
 
-            cs = ss.accept(); //Accept comienza el socket y espera una conexión desde un cliente
-
-            System.out.println("Cliente en línea");
-
-            //Se obtiene el flujo de salida del cliente para enviarle mensajes
-            salidaCliente = new DataOutputStream(cs.getOutputStream());
-
-            //Se le envía un mensaje al cliente usando su flujo de salida
-            salidaCliente.writeUTF("Petición recibida y aceptada");
-
-            //Se obtiene el flujo entrante desde el cliente
-            BufferedReader entrada = new BufferedReader(new InputStreamReader(cs.getInputStream()));
-
+            //Siempre estara escuchando peticiones
             while (true) {
-                // Recibir datos desde el cliente
-                String mensaje = entrada.readLine();
 
-                // Verificar si se recibió la señal para detener el servidor
-                if (mensaje.equals("bye")) {
-                    break;
-                }
+                //Espero a que un cliente se conecte
+                sc = servidor.accept();
+
+                System.out.println("Cliente conectado");
+                in = new DataInputStream(sc.getInputStream());
+                out = new DataOutputStream(sc.getOutputStream());
+
+                //Leo el mensaje que me envia
+                String mensaje = in.readUTF();
+
+                System.out.println(mensaje);
+
+                //Le envio un mensaje
+                out.writeUTF("¡Hola mundo desde el servidor!");
+
+                //Cierro el socket
+                sc.close();
+                System.out.println("Cliente desconectado");
+
             }
 
-            System.out.println("Fin de la conexión");
-
-            ss.close();//Se finaliza la conexión con el cliente
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (IOException ex) {
+            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 }

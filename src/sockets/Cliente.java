@@ -4,37 +4,48 @@
  */
 package sockets;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author rjsaa
  */
-public class Cliente extends Conexion {
-    
-    public Cliente() throws IOException{super("cliente");} //Se usa el constructor para cliente de Conexion
+public class Cliente {
 
-    public void startClient(){
-        try
-        {
-            //Flujo de datos hacia el servidor
-            salidaServidor = new DataOutputStream(cs.getOutputStream());
+    public static void main(String args[]) {
 
-            //Se enviarán dos mensajes
-            for (int i = 0; i < 2; i++)
-            {
-                //Se escribe en el servidor usando su flujo de datos
-                salidaServidor.writeUTF("Este es el mensaje número " + (i+1) + "\n");
-            }
+        //Host del servidor
+        final String HOST = "localhost";
+        //Puerto del servidor
+        final int PUERTO = 5000;
+        DataInputStream in;
+        DataOutputStream out;
 
-            cs.close();//Fin de la conexión
+        try {
+            //Creo el socket para conectarme con el cliente
+            Socket sc = new Socket(HOST, PUERTO);
 
+            in = new DataInputStream(sc.getInputStream());
+            out = new DataOutputStream(sc.getOutputStream());
+
+            //Envio un mensaje al cliente
+            out.writeUTF("¡Hola mundo desde el cliente!");
+
+            //Recibo el mensaje del servidor
+            String mensaje = in.readUTF();
+
+            System.out.println(mensaje);
+
+            sc.close();
+
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
-        catch (Exception e)
-        {
-            System.out.println(e.getMessage());
-        }
+
     }
 }
-

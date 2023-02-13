@@ -185,7 +185,7 @@ public class ReportesFrm extends javax.swing.JFrame {
                 respuesta.writeObject(ReporteInterpreter.toString(reporte)); //Envia el mensaje
 
             }
-            
+
         } catch (IOException ex) {
             Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {

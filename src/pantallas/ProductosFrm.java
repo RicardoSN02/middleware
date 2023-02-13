@@ -5,10 +5,13 @@
 package pantallas;
 
 import com.google.gson.Gson;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.ObjectInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -234,28 +237,61 @@ public class ProductosFrm extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        try {
-            if (getNombreZonaSeleccionado() != null) {
-                // TODO add your handling code here:
+//        try {
+//            if (getNombreZonaSeleccionado() != null) {
+//
+////                 TODO add your handling code here:
                 Producto producto = getNombreZonaSeleccionado();
-                //Se conecta al servidor
-                Socket socket = new Socket("localhost", 4444);
-                ObjectOutputStream productoM = new ObjectOutputStream(socket.getOutputStream());
-                System.out.println(ProductoInterpreter.toString(producto));
-                productoM.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
-
+//
+////                Se conecta al servidor
+//                Socket socket = new Socket("localhost", 4444);
+//
+////                Cerramos la conexión
+//                socket.close();
+//                DataOutputStream productoM = new DataOutputStream(socket.getOutputStream());
+//                System.out.println(ProductoInterpreter.toString(producto));
+//                productoM.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
+//                socket.close();
 //                //Llegada el mensaje
 //                ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
 //                String reporteM = (String) entrada.readObject();
 //                txtReportes.setText(reporteM);
-
-            }
-
-        } catch (IOException ex) {
-            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);}
+//            }
+//
+//        } catch (IOException ex) {
+//            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
 //        } catch (ClassNotFoundException ex) {
 //            Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
 //        }
+//Host del servidor
+        final String HOST = "localhost";
+        //Puerto del servidor
+        final int PUERTO = 5000;
+        DataInputStream in;
+        DataOutputStream out;
+
+        try {
+            //Creo el socket para conectarme con el cliente
+            Socket sc = new Socket(HOST, PUERTO);
+
+            in = new DataInputStream(sc.getInputStream());
+            out = new DataOutputStream(sc.getOutputStream());
+            System.out.println(ProductoInterpreter.toString(producto));
+            //Envio un mensaje al cliente
+            out.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
+            
+
+            //Recibo el mensaje del servidor
+            String mensaje = in.readUTF();
+
+            System.out.println(mensaje);
+
+            sc.close();
+
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
