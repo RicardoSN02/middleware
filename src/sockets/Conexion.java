@@ -17,7 +17,7 @@ public class Conexion {
     private final int PUERTO= 4444;
     private final String HOST = "localhost";
     protected String mensajeServidor;
-    mbnk protected ServerSocket ss;
+    protected ServerSocket ss;
     protected Socket cs;
     protected DataOutputStream salidaServidor,salidaCliente;
     

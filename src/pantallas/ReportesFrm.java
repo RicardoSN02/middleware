@@ -7,13 +7,20 @@ package pantallas;
 import com.google.gson.Gson;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import obj.Producto;
+import static obj.ProductoInterpreter.fromString;
 import obj.Reporte;
+import obj.ReporteInterpreter;
+import sockets.Cliente;
 
 /**
  *
@@ -21,42 +28,42 @@ import obj.Reporte;
  */
 public class ReportesFrm extends javax.swing.JFrame {
 
+    ArrayList<Producto> productos = new ArrayList<>();
+
     /**
      * Creates new form reportesFrm
      */
     public ReportesFrm() {
         initComponents();
-        
+
     }
 
-    
-    private String getNombreZonaSeleccionado(){
-        int indiceFilaSeleccionada = this.tblZonas.getSelectedRow();
+    private Producto getNombreZonaSeleccionado() {
+        int indiceFilaSeleccionada = this.tblProductos.getSelectedRow();
         if (indiceFilaSeleccionada != -1) {
-            DefaultTableModel modeloTabla = (DefaultTableModel) this.tblZonas.getModel();
+            DefaultTableModel modeloTabla = (DefaultTableModel) this.tblProductos.getModel();
             int indiceColumnaNombre = 0;
-            String nombreSeleccionado= (String) modeloTabla.getValueAt(indiceFilaSeleccionada, indiceColumnaNombre);
-            return nombreSeleccionado;
-        }
-        else {
+            String nombreSeleccionado = (String) modeloTabla.getValueAt(indiceFilaSeleccionada, indiceColumnaNombre);
+            String descripcionSeleccionado = (String) modeloTabla.getValueAt(indiceFilaSeleccionada, indiceColumnaNombre + 1);
+            Producto producto = new Producto(nombreSeleccionado, descripcionSeleccionado);
+            return producto;
+        } else {
             return null;
-        }       
+        }
     }
-    
-    private void llenarTablaSeleccionadas(){
-        List<String> listaZonas = zonatblSeleccionada;
-        
-        DefaultTableModel modeloTabla = (DefaultTableModel) this.tblZonasSeleccionadas.getModel();
+
+    private void llenarTablaSeleccionadas(String producto) {
+
+        DefaultTableModel modeloTabla = (DefaultTableModel) this.tblProductos.getModel();
 
         modeloTabla.setRowCount(0);
-
-        listaZonas.forEach(zona -> {
-            Object[] fila = new Object[1];
-            fila[0] = zona;
-            modeloTabla.addRow(fila);
-        });
+        Producto p = fromString(producto);
+        Object[] fila = new Object[2];
+        fila[0] = p.getNombre();
+        fila[1] = p.getDescripcion();
+        modeloTabla.addRow(fila);
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -125,8 +132,8 @@ public class ReportesFrm extends javax.swing.JFrame {
                         .addComponent(txtProducto))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 454, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 64, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -147,24 +154,41 @@ public class ReportesFrm extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
             // TODO add your handling code here:
-            Producto producto = new Producto(5,"tele","50 pulgadas");
-            Reporte reporte = new Reporte(txtComentario.getText(),producto);
-            
-            Socket socket = new Socket("localhost",9999);
-            
-            DataOutputStream salida= new DataOutputStream(socket.getOutputStream());
-            
-            Gson gson = new Gson();
-            String gsonObjeto=gson.toJson(reporte);
-            
-            salida.writeUTF(gsonObjeto);
+
+//            Producto producto = new Producto(5, "tele", "50 pulgadas");
+//            Reporte reporte = new Reporte(txtComentario.getText(), producto);
+//
+//            Socket socket = new Socket("localhost", 9999);
+//
+//            DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
+//
+//            Gson gson = new Gson();
+//            String gsonObjeto = gson.toJson(reporte);
+//
+//            salida.writeUTF(gsonObjeto);
+            Socket socket = new Socket("localhost", 4444);
+            ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
+            String mensaje = (String) entrada.readObject();
+            llenarTablaSeleccionadas(mensaje);
+            //Enviar respuesta
+            ObjectOutputStream respuesta = new ObjectOutputStream(socket.getOutputStream());
+            if (getNombreZonaSeleccionado() != null) {
+                Producto producto = getNombreZonaSeleccionado();
+                Reporte reporte = new Reporte(txtComentario.getText(), producto);
+                System.out.println(ReporteInterpreter.toString(reporte));
+                respuesta.writeObject(ReporteInterpreter.toString(reporte)); //Envia el mensaje
+
+            }
             
         } catch (IOException ex) {
+            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
             Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed

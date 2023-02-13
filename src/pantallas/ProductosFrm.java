@@ -4,54 +4,67 @@
  */
 package pantallas;
 
+import com.google.gson.Gson;
+import java.io.ObjectInputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
 import obj.Producto;
+import obj.ProductoInterpreter;
+import obj.Reporte;
+import sockets.Cliente;
 
 /**
  *
  * @author rjsaa
  */
 public class ProductosFrm extends javax.swing.JFrame {
- ArrayList<Producto> productos = new ArrayList<>();
+
+    ArrayList<Producto> productos = new ArrayList<>();
+
     /**
      * Creates new form productosFrm
      */
     public ProductosFrm() {
         initComponents();
-        Producto producto1 = new Producto(1,"television smart","22 pulgadas");
-        Producto producto2 = new Producto(2,"television smart","30 pulgadas");
-        Producto producto3 = new Producto(3,"television smart","34 pulgadas");
-        Producto producto4 = new Producto(4,"television smart","40 pulgadas");
-        Producto producto5 = new Producto(5,"television smart","50 pulgadas");
-        
+        Producto producto1 = new Producto(1, "television smart", "22 pulgadas");
+        Producto producto2 = new Producto(2, "television smart", "30 pulgadas");
+        Producto producto3 = new Producto(3, "television smart", "34 pulgadas");
+        Producto producto4 = new Producto(4, "television smart", "40 pulgadas");
+        Producto producto5 = new Producto(5, "television smart", "50 pulgadas");
+
         productos.add(producto1);
         productos.add(producto2);
         productos.add(producto3);
         productos.add(producto4);
         productos.add(producto5);
-        
+
         this.llenarTablaSeleccionadas();
-        
+
     }
-    
-    private String getNombreZonaSeleccionado(){
-        int indiceFilaSeleccionada = this.tblZonas.getSelectedRow();
+
+    private Producto getNombreZonaSeleccionado() {
+        int indiceFilaSeleccionada = this.tblProductos.getSelectedRow();
         if (indiceFilaSeleccionada != -1) {
-            DefaultTableModel modeloTabla = (DefaultTableModel) this.tblZonas.getModel();
+            DefaultTableModel modeloTabla = (DefaultTableModel) this.tblProductos.getModel();
             int indiceColumnaNombre = 0;
-            String nombreSeleccionado= (String) modeloTabla.getValueAt(indiceFilaSeleccionada, indiceColumnaNombre);
-            return nombreSeleccionado;
-        }
-        else {
+            String nombreSeleccionado = (String) modeloTabla.getValueAt(indiceFilaSeleccionada, indiceColumnaNombre);
+            String descripcionSeleccionado = (String) modeloTabla.getValueAt(indiceFilaSeleccionada, indiceColumnaNombre + 1);
+            Producto producto = new Producto(nombreSeleccionado, descripcionSeleccionado);
+            return producto;
+        } else {
             return null;
-        }       
+        }
     }
-    
-    private void llenarTablaSeleccionadas(){
+
+    private void llenarTablaSeleccionadas() {
         List<Producto> listaProductos = productos;
-        
+
         DefaultTableModel modeloTabla = (DefaultTableModel) this.tblProductos.getModel();
 
         modeloTabla.setRowCount(0);
@@ -63,6 +76,7 @@ public class ProductosFrm extends javax.swing.JFrame {
             modeloTabla.addRow(fila);
         });
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -83,6 +97,7 @@ public class ProductosFrm extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         txtReportes = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -136,6 +151,13 @@ public class ProductosFrm extends javax.swing.JFrame {
 
         jLabel3.setText("reportes:");
 
+        jButton2.setText("Generar Reporte");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -150,11 +172,14 @@ public class ProductosFrm extends javax.swing.JFrame {
                             .addComponent(jLabel2))
                         .addGap(24, 24, 24)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(93, 93, 93)
                                 .addComponent(jButton1)
-                                .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 51, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jButton2)))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
@@ -172,7 +197,8 @@ public class ProductosFrm extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel3)
+                    .addComponent(jButton2))
                 .addGap(14, 14, 14)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -188,22 +214,49 @@ public class ProductosFrm extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtNombreActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtNombreActionPerformed
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_txtNombreActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Producto producto = new Producto();
         producto.setNombre(txtNombre.getText());
         producto.setDescripcion(txtDescripcion.getText());
-        
+
         productos.add(producto);
         this.llenarTablaSeleccionadas();
-        
+
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        try {
+            if (getNombreZonaSeleccionado() != null) {
+                // TODO add your handling code here:
+                Producto producto = getNombreZonaSeleccionado();
+                //Se conecta al servidor
+                Socket socket = new Socket("localhost", 4444);
+                ObjectOutputStream productoM = new ObjectOutputStream(socket.getOutputStream());
+                System.out.println(ProductoInterpreter.toString(producto));
+                productoM.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
+
+//                //Llegada el mensaje
+//                ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
+//                String reporteM = (String) entrada.readObject();
+//                txtReportes.setText(reporteM);
+
+            }
+
+        } catch (IOException ex) {
+            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);}
+//        } catch (ClassNotFoundException ex) {
+//            Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -243,6 +296,7 @@ public class ProductosFrm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

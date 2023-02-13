@@ -5,6 +5,7 @@
 package sockets;
 
 import java.io.IOException;
+import pantallas.ReportesFrm;
 
 /**
  *
@@ -17,5 +18,6 @@ public class MainServidor {
 
         System.out.println("Iniciando servidor\n");
         serv.startServer(); //Se inicia el servidor
+        
     }
 }
