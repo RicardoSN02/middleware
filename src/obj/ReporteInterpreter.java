@@ -10,10 +10,14 @@ package obj;
  */
 public class ReporteInterpreter {
     public static String toString(Reporte reporte) {
-        return reporte.getIdReporte()+ "," + reporte.getProducto().getNombre() + "," + reporte.getProducto().getDescripcion();
+        return reporte.getIdReporte()+ "," + reporte.getProducto().getNombre() + "," + reporte.getComentario();
     }
-    public static Producto fromString(String string) {
+    public static Reporte fromString(String string) {
         String[] parts = string.split(",");
-        return new Producto(Integer.parseInt(parts[0]), parts[1], parts[2]);
+        Producto producto = new Producto();
+        producto.setNombre(parts[1]);
+        Reporte reporte = new Reporte(parts[2],producto);
+//        reporte.setIdReporte(Integer.parseInt(parts[0]));
+        return reporte;
     }
 }

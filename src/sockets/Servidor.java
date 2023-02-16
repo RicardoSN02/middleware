@@ -34,6 +34,8 @@ public class Servidor {
             //Creamos el socket del servidor
             servidor = new ServerSocket(PUERTO);
             System.out.println("Servidor iniciado");
+            ServidorHilo sh = null;
+            ServidorHilo sh2 = null;
             
             //guarda los sockets de los clientes 
             for (int i = 0; i < puertosClientes.length; i++) {
@@ -41,41 +43,16 @@ public class Servidor {
                 in[i] = new DataInputStream(sc[i].getInputStream());
                 out[i] = new DataOutputStream(sc[i].getOutputStream());
                 System.out.println("Cliente conectado");
+                
             }
             
+                sh = new ServidorHilo(sc[0],in[0],out[1]);
+                sh2 = new ServidorHilo(sc[1],in[1],out[0]);
+                sh.start();
+                sh2.start();
             //Siempre estara escuchando peticiones
             while (true) {
-
-                socketTurno= servidor.accept();
-                DataInputStream inTurno= new DataInputStream(socketTurno.getInputStream());
-                DataOutputStream outTurno= new DataOutputStream(socketTurno.getOutputStream());
                 
-                if(sc[0].getPort()==socketTurno.getPort()){
-                    String mensaje = inTurno.readUTF();
-
-                    
-                    System.out.println(mensaje);
-
-                //Le envio un mensaje
-                    out[1].writeUTF("¡Hola mundo desde el servidor!");
-
-                //Cierro el socket
-                    sc[1].close();
-                    System.out.println("Cliente desconectado");
-                }else{
-                    String mensaje = inTurno.readUTF();
-
-                    System.out.println(mensaje);
-
-                //Le envio un mensaje
-                    out[0].writeUTF("¡Hola mundo desde el servidor!");
-
-                //Cierro el socket
-                    sc[0].close();
-                    System.out.println("Cliente desconectado");
-                }
-                
-
             }
 
         } catch (IOException ex) {

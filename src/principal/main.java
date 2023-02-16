@@ -16,7 +16,7 @@ public class main {
     public static void main(String[] args){
         
 
-        //no usar todavia , incompleto
+      //no usar todavia , incompleto
         //abre productos frm
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {

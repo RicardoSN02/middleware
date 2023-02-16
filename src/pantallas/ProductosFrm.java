@@ -20,7 +20,7 @@ import javax.swing.table.DefaultTableModel;
 import obj.Producto;
 import obj.ProductoInterpreter;
 import obj.Reporte;
-import sockets.HiloCliente;
+import sockets.HiloClienteProductos;
 
 /**
  *
@@ -29,6 +29,7 @@ import sockets.HiloCliente;
 public class ProductosFrm extends javax.swing.JFrame {
 
     ArrayList<Producto> productos = new ArrayList<>();
+    ArrayList<Reporte> reportes = new ArrayList<>();
     final String HOST = "localhost";
         //Puerto del servidor
         final int PUERTO = 5000;
@@ -55,13 +56,13 @@ public class ProductosFrm extends javax.swing.JFrame {
 
         this.llenarTablaSeleccionadas();
         try { 
-            Socket sc = new Socket(HOST, PUERTO);
+            sc = new Socket(HOST, PUERTO);
             in = new DataInputStream(sc.getInputStream());
             out = new DataOutputStream(sc.getOutputStream());
         } catch (IOException ex) {
             Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
         }
-        HiloCliente hilo = new HiloCliente(sc,in);
+        HiloClienteProductos hilo = new HiloClienteProductos(sc,in,this);
         hilo.start();
     }
 
@@ -94,6 +95,28 @@ public class ProductosFrm extends javax.swing.JFrame {
         });
     }
 
+    
+    public void agregarReporte(Reporte reporte) {
+        
+        reportes.add(reporte);
+        
+        this.llenarTablaSeleccionadasReportes();
+    }
+    
+    private void llenarTablaSeleccionadasReportes() {
+        List<Reporte> listaReportes = reportes;
+
+        DefaultTableModel modeloTabla = (DefaultTableModel) this.tblReportes.getModel();
+
+        modeloTabla.setRowCount(0);
+
+        listaReportes.forEach(reportes -> {
+            Object[] fila = new Object[2];
+            fila[0] = reportes.getProducto().getNombre();
+            fila[1] = reportes.getComentario();
+            modeloTabla.addRow(fila);
+        });
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -112,7 +135,6 @@ public class ProductosFrm extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         tblReportes = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
-        txtReportes = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
 
@@ -154,12 +176,20 @@ public class ProductosFrm extends javax.swing.JFrame {
                 {null, null}
             },
             new String [] {
-                "id", "producto"
+                "producto", "reporte"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jScrollPane2.setViewportView(tblReportes);
 
-        jButton1.setText("Agregar");
+        jButton1.setText("Agregar producto");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -168,7 +198,7 @@ public class ProductosFrm extends javax.swing.JFrame {
 
         jLabel3.setText("reportes:");
 
-        jButton2.setText("Generar Reporte");
+        jButton2.setText("Enviar producto");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -182,52 +212,62 @@ public class ProductosFrm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 599, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel2))
-                        .addGap(24, 24, 24)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 350, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel3))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(93, 93, 93)
-                                .addComponent(jButton1)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jButton2)))))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 29, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addComponent(txtReportes, javax.swing.GroupLayout.DEFAULT_SIZE, 235, Short.MAX_VALUE))
-                    .addComponent(jLabel3))
-                .addGap(21, 21, 21))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(111, 111, 111)
+                                        .addComponent(jLabel2))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jLabel1)))
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtNombre, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 217, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                            .addComponent(jButton1)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(jButton2))
+                                        .addComponent(txtDescripcion, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 264, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap())))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 178, Short.MAX_VALUE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jLabel3)
-                    .addComponent(jButton2))
-                .addGap(14, 14, 14)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtNombre, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2)))
-                    .addComponent(txtReportes))
-                .addContainerGap())
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2)
+                        .addGap(10, 10, 10)
+                        .addComponent(txtDescripcion, javax.swing.GroupLayout.PREFERRED_SIZE, 109, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 23, Short.MAX_VALUE)
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED))
+                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jButton1)
+                            .addComponent(jButton2))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 178, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(8, Short.MAX_VALUE))
         );
 
         pack();
@@ -250,49 +290,22 @@ public class ProductosFrm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-//        try {
-//            if (getNombreZonaSeleccionado() != null) {
-//
-////                 TODO add your handling code here:
-                Producto producto = getNombreZonaSeleccionado();
-//
-////                Se conecta al servidor
-//                Socket socket = new Socket("localhost", 4444);
-//
-////                Cerramos la conexión
-//                socket.close();
-//                DataOutputStream productoM = new DataOutputStream(socket.getOutputStream());
-//                System.out.println(ProductoInterpreter.toString(producto));
-//                productoM.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
-//                socket.close();
-//                //Llegada el mensaje
-//                ObjectInputStream entrada = new ObjectInputStream(socket.getInputStream());
-//                String reporteM = (String) entrada.readObject();
-//                txtReportes.setText(reporteM);
-//            }
-//
-//        } catch (IOException ex) {
-//            Logger.getLogger(ReportesFrm.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (ClassNotFoundException ex) {
-//            Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//Host del servidor
+      Producto producto = getNombreZonaSeleccionado();
         
 
         try {
-            //Creo el socket para conectarme con el cliente
-            sc = new Socket(HOST,PUERTO);
-            //Envio un mensaje al cliente
-            out.writeUTF(ProductoInterpreter.toString(producto)); //Envia el mensaje
+            
+            Gson gson= new Gson();
+            String productoJson= gson.toJson(producto);
+            
+            out.writeUTF(productoJson); //Envia el mensaje
             out.flush();
             //Recibo el mensaje del servidor
-            sc.close();
+            
 
         } catch (IOException ex) {
             
         }
-        
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
@@ -343,6 +356,5 @@ public class ProductosFrm extends javax.swing.JFrame {
     private javax.swing.JTable tblReportes;
     private javax.swing.JTextField txtDescripcion;
     private javax.swing.JTextField txtNombre;
-    private javax.swing.JTextField txtReportes;
     // End of variables declaration//GEN-END:variables
 }

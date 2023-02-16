@@ -10,7 +10,7 @@ package obj;
  */
 public class ProductoInterpreter {
     public static String toString(Producto producto) {
-        return producto.getNombre()+ "," + producto.getDescripcion();
+        return producto.getIdProducto()+","+ producto.getNombre()+ "," + producto.getDescripcion();
     }
     public static Producto fromString(String string) {
         String[] parts = string.split(",");

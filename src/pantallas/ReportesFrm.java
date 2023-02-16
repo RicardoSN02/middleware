@@ -16,13 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import obj.Producto;
 import obj.ProductoInterpreter;
 import static obj.ProductoInterpreter.fromString;
 import obj.Reporte;
 import obj.ReporteInterpreter;
-import sockets.HiloCliente;
+import sockets.HiloClienteProductos;
+import sockets.HiloClienteReportes;
 
 /**
  *
@@ -56,16 +58,18 @@ public class ReportesFrm extends javax.swing.JFrame {
         
         this.llenarTablaSeleccionadas();
         try { 
-            Socket sc = new Socket(HOST, PUERTO);
+            sc = new Socket(HOST, PUERTO);
             in = new DataInputStream(sc.getInputStream());
             out = new DataOutputStream(sc.getOutputStream());
         } catch (IOException ex) {
             Logger.getLogger(ProductosFrm.class.getName()).log(Level.SEVERE, null, ex);
         }
-        HiloCliente hilo = new HiloCliente(sc,in);
+        HiloClienteReportes hilo = new HiloClienteReportes(sc,in,this);
         hilo.start();
     }
 
+   
+    
     private Producto getNombreZonaSeleccionado() {
         int indiceFilaSeleccionada = this.tblProductos.getSelectedRow();
         if (indiceFilaSeleccionada != -1) {
@@ -92,6 +96,13 @@ public class ReportesFrm extends javax.swing.JFrame {
             modeloTabla.addRow(fila);
         });
     }
+    
+    public void agregarReporte(Producto producto) {
+        
+        productos.add(producto);
+        
+        this.llenarTablaSeleccionadas();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -104,9 +115,7 @@ public class ReportesFrm extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tblProductos = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        txtProducto = new javax.swing.JTextField();
         txtComentario = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
 
@@ -133,8 +142,6 @@ public class ReportesFrm extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tblProductos);
 
-        jLabel1.setText("producto:");
-
         jLabel2.setText("Comentarios:");
 
         jButton1.setText("enviar");
@@ -150,16 +157,12 @@ public class ReportesFrm extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(21, 21, 21)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 454, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel2)
                         .addGap(18, 18, 18)
-                        .addComponent(txtComentario))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(38, 38, 38)
-                        .addComponent(txtProducto))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 454, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtComentario)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(19, Short.MAX_VALUE))
@@ -171,15 +174,11 @@ public class ReportesFrm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButton1))
-                .addGap(31, 31, 31)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(txtProducto, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(34, 34, 34)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2)
-                    .addComponent(txtComentario, javax.swing.GroupLayout.PREFERRED_SIZE, 62, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(23, Short.MAX_VALUE))
+                    .addComponent(txtComentario, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
 
         pack();
@@ -188,17 +187,30 @@ public class ReportesFrm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         //reporte de prueba
-        Producto producto1 = new Producto(1, "television smart", "22 pulgadas");
-        Reporte reporte = new Reporte("tele con defectos", producto1);
+        Producto producto1 = getNombreZonaSeleccionado();
+        if(!txtComentario.getText().equalsIgnoreCase("") && !producto1.equals(null) ){
+        
+        Reporte reporte = new Reporte(txtComentario.getText(), producto1);
         reporte.setIdReporte(1);
-        try {
-            sc = new Socket(HOST,PUERTO);
+        try {           
+//            sc = new Socket(HOST, PUERTO);
+//            
+//            in = new DataInputStream(sc.getInputStream());
+//            out = new DataOutputStream(sc.getOutputStream());
             //Envio un mensaje al cliente
             out.writeUTF(ReporteInterpreter.toString(reporte)); //Envia el mensaje
             out.flush();
-            sc.close();
+            
+            
+            //Recibo el mensaje del servidor
+            
         } catch (IOException ex) {
             
+        }
+        }else{
+            JOptionPane.showMessageDialog(this, "campo faltante o producto no seleccionado",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                    
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -241,11 +253,9 @@ public class ReportesFrm extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable tblProductos;
     private javax.swing.JTextField txtComentario;
-    private javax.swing.JTextField txtProducto;
     // End of variables declaration//GEN-END:variables
 }
