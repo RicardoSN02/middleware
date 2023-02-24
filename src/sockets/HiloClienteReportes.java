@@ -52,17 +52,24 @@ public class HiloClienteReportes extends Thread{
         while(true){
             try {
                 Gson gson = new Gson();
+                int numero;
                 /**
                  * recibe el mensaje y lo muestra en consola
                  */
                 String mensaje = in.readUTF();
-
-                System.out.println(mensaje);
+                
+                try{
+                   numero = Integer.parseInt(mensaje);
+                   rFrm.setNumeroAsignado(numero);
+                }catch(Exception e){
+                   System.out.println(mensaje);
                 
                 
-                recibidoPro = ProductoInterpreter.fromString(mensaje);
+                   recibidoPro = ProductoInterpreter.fromString(mensaje);
                     
-                rFrm.agregarReporte(recibidoPro);
+                   rFrm.agregarReporte(recibidoPro); 
+                }
+                
                 
             } catch (IOException ex) {
                 

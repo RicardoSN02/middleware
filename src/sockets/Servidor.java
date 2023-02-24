@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,37 +21,21 @@ public class Servidor {
 
     public static void main(String[] args) {
 
-        ServerSocket servidor = null;
-        Socket sc[] = new Socket[2];
-        DataInputStream[] in= new DataInputStream[2];
-        DataOutputStream[] out= new DataOutputStream[2];
-        Socket socketTurno= null;
-        
-        int[] puertosClientes = new int[2];
         //puerto de nuestro servidor
         final int PUERTO = 5000;
 
         try {
+            ServerSocket servidor = null;
             //Creamos el socket del servidor
             servidor = new ServerSocket(PUERTO);
             System.out.println("Servidor iniciado");
-            ServidorHilo sh = null;
-            ServidorHilo sh2 = null;
             
-            //guarda los sockets de los clientes 
-            for (int i = 0; i < puertosClientes.length; i++) {
-                sc[i]=servidor.accept();
-                in[i] = new DataInputStream(sc[i].getInputStream());
-                out[i] = new DataOutputStream(sc[i].getOutputStream());
-                System.out.println("Cliente conectado");
-                
-            }
+            HiloAceptarClientes ac = null;
             
-                sh = new ServidorHilo(sc[0],in[0],out[1]);
-                sh2 = new ServidorHilo(sc[1],in[1],out[0]);
-                sh.start();
-                sh2.start();
-            //Siempre estara escuchando peticiones
+            ac = new HiloAceptarClientes(servidor);
+            ac.start();
+            
+            
             while (true) {
                 
             }
@@ -60,4 +45,6 @@ public class Servidor {
         }
 
     }
+    
+    
 }

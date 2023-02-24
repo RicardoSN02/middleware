@@ -7,37 +7,30 @@ package sockets;
 import com.google.gson.Gson;
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.StringReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
 import obj.Producto;
+import obj.ProductoInterpreter;
 import obj.Reporte;
 import obj.ReporteInterpreter;
-import pantallas.ProductosFrm;
-import pantallas.ReportesFrm;
-
+import pantallas.PedidoFrm;
 
 /**
- * hilo que ayudara a escuchar los mensajes recibidos del lado del cliente
- * @author rjsaa
+ *
+ * @author Alexandra
  */
-public class HiloClienteProductos extends Thread{
+public class HiloClientePedidos extends Thread{
     //sockets y buffer a usar para interpretar el mensaje
     
     Socket socket = null;
     DataInputStream in= null;
     Producto recibidoPro = null;
     Reporte recibidoRep = null;
-    ProductosFrm pFrm = null;
+    PedidoFrm pFrm = null;
     /**
      * construcor que inicializa el socket al socket de la clase cliente
      * @param ds 
      */
-    public HiloClienteProductos(Socket socket,DataInputStream in,ProductosFrm pFrm) {
+    public HiloClientePedidos(Socket socket,DataInputStream in,PedidoFrm pFrm) {
         this.socket = socket;
         this.in= in;
         this.pFrm = pFrm;
@@ -56,24 +49,21 @@ public class HiloClienteProductos extends Thread{
                  * recibe el mensaje y lo muestra en consola
                  */
                 String mensaje = in.readUTF();
-
+                
                 try{
                    numero = Integer.parseInt(mensaje);
                    pFrm.setNumeroAsignado(numero);
                 }catch(Exception e){
-                    System.out.println(mensaje);
-                
-                    recibidoRep = ReporteInterpreter.fromString(mensaje);
-                
-                    pFrm.agregarReporte(recibidoRep);
+                   System.out.println(mensaje);
+
+                   recibidoPro = ProductoInterpreter.fromString(mensaje);
+                    
+                   pFrm.agregarReporte(recibidoPro); 
                 }
-                
-                
-                
+
             } catch (IOException ex) {
                 
             }
         }
     }
-    
 }
