@@ -27,7 +27,9 @@ import sockets.HiloClientePedidos;
 public class PedidoFrm extends javax.swing.JFrame {
 
 
+
     int numeroAsignado;
+
 
     ArrayList<Producto> productos = new ArrayList<>();
     ArrayList<Reporte> reportes = new ArrayList<>();
@@ -66,6 +68,7 @@ public class PedidoFrm extends javax.swing.JFrame {
         HiloClientePedidos hilo = new HiloClientePedidos(sc, in, this);
         hilo.start();
     }
+
 
 
     public void setNumeroAsignado(int numero){

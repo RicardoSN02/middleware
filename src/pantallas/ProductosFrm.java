@@ -398,6 +398,25 @@ public class ProductosFrm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        Producto producto = getNombreZonaSeleccionado();
+        
+
+        try {
+            
+            Gson gson= new Gson();
+            String productoJson= gson.toJson(producto);
+            
+            out.writeUTF(productoJson); //Envia el mensaje
+            out.flush();
+            
+
+        } catch (IOException ex) {
+            
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     /**
      * @param args the command line arguments
      */

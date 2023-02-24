@@ -45,12 +45,15 @@ public class HiloClientePedidos extends Thread{
             try {
                 Gson gson = new Gson();
 
+
                 int numero;
+
 
                 /**
                  * recibe el mensaje y lo muestra en consola
                  */
                 String mensaje = in.readUTF();
+
 
                 
                 try{
@@ -64,16 +67,7 @@ public class HiloClientePedidos extends Thread{
                    pFrm.agregarReporte(recibidoPro); 
                 }
 
-
-
-                System.out.println(mensaje);
                 
-                
-                recibidoPro = ProductoInterpreter.fromString(mensaje);
-                    
-                pFrm.agregarReporte(recibidoPro);
-                
-
             } catch (IOException ex) {
                 
             }

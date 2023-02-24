@@ -71,6 +71,7 @@ public class ReportesFrm extends javax.swing.JFrame {
     }
 
 
+
     public void setNumeroAsignado(int numero){
         this.numeroAsignado = numero;
         System.out.println(numero);
