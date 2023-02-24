@@ -15,66 +15,63 @@ import obj.ReporteInterpreter;
 
 /**
  * hilo que ayudara a escuchar los mensajes recibidos del lado del cliente
+ *
  * @author rjsaa
  */
-public class ServidorHilo extends Thread{
+public class ServidorHilo extends Thread {
     //sockets y buffer a usar para interpretar el mensaje
-    
+
     Socket socket = null;
-    DataInputStream in= null;
-    DataOutputStream out=null;
-    JFrame frame=null;
+    DataInputStream in = null;
+    DataOutputStream out = null;
+    JFrame frame = null;
+
     /**
      * construcor que inicializa el socket al socket de la clase cliente
-     * @param 
+     *
+     * @param
      */
-    public ServidorHilo(Socket socket,DataInputStream in,DataOutputStream out) {
+    public ServidorHilo(Socket socket, DataInputStream in, DataOutputStream out) {
         this.socket = socket;
-        this.in= in;
-        this.out=out;
+        this.in = in;
+        this.out = out;
     }
-      
+
     /**
      * clase que activa el hilo
      */
     @Override
-    public void run(){
-        while(true){
+    public void run() {
+        while (true) {
             try {
                 /**
                  * recibe el mensaje y lo muestra en consola
                  */
                 Gson gson = new Gson();
-                
+
                 String mensaje = in.readUTF();
-                
+
                 System.out.println(mensaje);
-                
-                if(mensaje.contains("{")){
-                    Producto producto = gson.fromJson(mensaje,Producto.class);
-                    
-                    mensaje=ProductoInterpreter.toString(producto);
-                    
+
+                if (mensaje.contains("{")) {
+                    Producto producto = gson.fromJson(mensaje, Producto.class);
+
+                    mensaje = ProductoInterpreter.toString(producto);
+
                     out.writeUTF(mensaje);
-                }else{
-                 
+                } else {
+
                     Reporte reporte = ReporteInterpreter.fromString(mensaje);
-                    
+
                     String reporteJson = gson.toJson(reporte);
-                    
+
                     out.writeUTF(reporteJson);
                 }
-                
-                
 
-                
-                
-                
-                
             } catch (IOException ex) {
-                
+
             }
         }
     }
-    
+
 }
