@@ -20,22 +20,30 @@ import java.util.logging.Logger;
 public class Servidor {
 
     public static void main(String[] args) {
+        ServerSocket servidor = null;
+        Socket sc[] = new Socket[3];
+        DataInputStream[] in= new DataInputStream[3];
+        DataOutputStream[] out= new DataOutputStream[3];
+        Socket socketTurno= null;
+        
+   
 
         //puerto de nuestro servidor
         final int PUERTO = 5000;
 
         try {
-            ServerSocket servidor = null;
+            
             //Creamos el socket del servidor
             servidor = new ServerSocket(PUERTO);
             System.out.println("Servidor iniciado");
+
             
             HiloAceptarClientes ac = null;
             
             ac = new HiloAceptarClientes(servidor);
             ac.start();
             
-            
+           
             while (true) {
                 
             }

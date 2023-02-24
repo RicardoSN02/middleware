@@ -70,11 +70,13 @@ public class ReportesFrm extends javax.swing.JFrame {
         hilo.start();
     }
 
+
     public void setNumeroAsignado(int numero){
         this.numeroAsignado = numero;
         System.out.println(numero);
     }
     
+
     private Producto getNombreZonaSeleccionado() {
         int indiceFilaSeleccionada = this.tblProductos.getSelectedRow();
         if (indiceFilaSeleccionada != -1) {

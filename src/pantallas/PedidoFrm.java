@@ -26,7 +26,9 @@ import sockets.HiloClientePedidos;
  */
 public class PedidoFrm extends javax.swing.JFrame {
 
+
     int numeroAsignado;
+
     ArrayList<Producto> productos = new ArrayList<>();
     ArrayList<Reporte> reportes = new ArrayList<>();
     final String HOST = "localhost";
@@ -65,11 +67,13 @@ public class PedidoFrm extends javax.swing.JFrame {
         hilo.start();
     }
 
+
     public void setNumeroAsignado(int numero){
         this.numeroAsignado = numero;
         System.out.println(numero);
     }
     
+
     private Producto getNombreZonaSeleccionado() {
         int indiceFilaSeleccionada = this.tblProductos.getSelectedRow();
         if (indiceFilaSeleccionada != -1) {
