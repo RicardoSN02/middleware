@@ -58,17 +58,17 @@ public class HiloClienteReportes extends Thread{
                  */
                 String mensaje = in.readUTF();
                 
-                try{
-                   numero = Integer.parseInt(mensaje);
-                   rFrm.setNumeroAsignado(numero);
-                }catch(Exception e){
-                   System.out.println(mensaje);
+                
+                   
+                   
+                
+                System.out.println(mensaje);
                 
                 
-                   recibidoPro = ProductoInterpreter.fromString(mensaje);
+                recibidoPro = ProductoInterpreter.fromString(mensaje);
                     
-                   rFrm.agregarReporte(recibidoPro); 
-                }
+                rFrm.agregarReporte(recibidoPro); 
+                
                 
                 
             } catch (IOException ex) {

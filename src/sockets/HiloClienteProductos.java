@@ -14,6 +14,8 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import obj.Pedido;
+import obj.PedidoInterpreter;
 import obj.Producto;
 import obj.Reporte;
 import obj.ReporteInterpreter;
@@ -32,6 +34,7 @@ public class HiloClienteProductos extends Thread{
     DataInputStream in= null;
     Producto recibidoPro = null;
     Reporte recibidoRep = null;
+    Pedido recibidoPe = null;
     ProductosFrm pFrm = null;
     /**
      * construcor que inicializa el socket al socket de la clase cliente
@@ -57,16 +60,31 @@ public class HiloClienteProductos extends Thread{
                  */
                 String mensaje = in.readUTF();
 
+                
+                System.out.println(mensaje);
+                
                 try{
-                   numero = Integer.parseInt(mensaje);
-                   pFrm.setNumeroAsignado(numero);
-                }catch(Exception e){
-                    System.out.println(mensaje);
-                
                     recibidoRep = ReporteInterpreter.fromString(mensaje);
-                
+                    
+                   
                     pFrm.agregarReporte(recibidoRep);
+                    
+                }catch(Exception e){
+                    
                 }
+                
+                try{
+                    recibidoPe= PedidoInterpreter.fromString(mensaje);
+                    pFrm.agregarPedido(recibidoPe);
+                    
+                }catch(Exception e){
+                    
+                }
+                
+                
+                
+                
+                
                 
                 
                 

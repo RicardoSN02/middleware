@@ -10,10 +10,12 @@ package obj;
  */
 public class PedidoInterpreter {
     public static String toString(Pedido pedido) {
-        return pedido.getIdReporte()+","+ pedido.getProducto().getNombre()+ "," + pedido.getCantidad();
+        return  pedido.getProducto().getNombre()+","+pedido.getCantidad()  ;
     }
-    public static Producto fromString(String string) {
+    public static Pedido fromString(String string) {
         String[] parts = string.split(",");
-        return new Producto(parts[0], parts[1]);
+        Producto producto = new Producto();
+        producto.setNombre(parts[0]);
+        return new Pedido(Integer.parseInt(parts[1]),producto);
     }
 }

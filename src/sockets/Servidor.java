@@ -21,12 +21,7 @@ public class Servidor {
 
     public static void main(String[] args) {
         ServerSocket servidor = null;
-        Socket sc[] = new Socket[3];
-        DataInputStream[] in= new DataInputStream[3];
-        DataOutputStream[] out= new DataOutputStream[3];
-        Socket socketTurno= null;
-        
-
+       
         //puerto de nuestro servidor
         final int PUERTO = 5000;
 
@@ -43,8 +38,6 @@ public class Servidor {
             ac = new HiloAceptarClientes(servidor);
             ac.start();
             
-           
-
             while (true) {
                 
             }

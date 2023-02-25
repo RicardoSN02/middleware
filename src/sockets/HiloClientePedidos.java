@@ -55,17 +55,14 @@ public class HiloClientePedidos extends Thread{
                 String mensaje = in.readUTF();
 
 
-                
-                try{
-                   numero = Integer.parseInt(mensaje);
-                   pFrm.setNumeroAsignado(numero);
-                }catch(Exception e){
-                   System.out.println(mensaje);
+                System.out.println(mensaje);
 
-                   recibidoPro = ProductoInterpreter.fromString(mensaje);
+                recibidoPro = ProductoInterpreter.fromString(mensaje);
                     
-                   pFrm.agregarReporte(recibidoPro); 
-                }
+                
+                
+                pFrm.agregarReporte(recibidoPro); 
+                
 
                 
             } catch (IOException ex) {

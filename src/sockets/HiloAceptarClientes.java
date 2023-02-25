@@ -23,8 +23,7 @@ public class HiloAceptarClientes extends Thread{
     int posicion=0;
     ServerSocket servidor;
     Socket sc[] = new Socket[3];
-    DataInputStream[] in= new DataInputStream[3];
-    DataOutputStream[] out= new DataOutputStream[3];
+    
     
     Socket socketTurno= null;
     
@@ -39,20 +38,25 @@ public class HiloAceptarClientes extends Thread{
     public void run(){
         while(true){
             try {
+                
+            
                 Socket socket=servidor.accept();
-                DataInputStream in = new DataInputStream(socket.getInputStream());
-                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                
+                if(!(posicion>=3)){
                 
                 sc[posicion] = socket;
-                this.in[posicion] = in;
-                this.out[posicion] = out;
-                
-                out.writeUTF(Integer.toString(posicion));
-                out.flush();
                 
                 posicion++;
                 
                 System.out.println("Cliente "+(posicion)+ " conectado");  
+                
+                ServidorHilo sh = new ServidorHilo(socket,this);
+            
+                sh.start();
+                
+                }else{
+                    System.out.println("numero de clientes maximo alcanzado");
+                }
                 
             } catch (IOException ex) {
                 Logger.getLogger(HiloAceptarClientes.class.getName()).log(Level.SEVERE, null, ex);
@@ -62,8 +66,11 @@ public class HiloAceptarClientes extends Thread{
     
     public void eliminarCliente(int posicion){
         this.sc[posicion]=null;
-        this.in[posicion]= null;
-        this.out[posicion]= null;
+        this.posicion-= 1;
+    }
+    
+    public Socket[] devolverSockets(){
+        return this.sc;
     }
     
     
